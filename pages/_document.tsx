@@ -51,6 +51,7 @@ export default class MyDocument extends Document<any> {
 					<link href="https://fonts.googleapis.com/css?family=Roboto:400,700&display=swap" rel="stylesheet"/>
 					<link rel="shortcut icon" type="image/x-icon" href="/static/assets/favicon.ico"/>
 					<meta name="viewport" content="width=device-width, initial-scale=1" />
+					<title>TIKI assignment - mr.hoangminhthai@gmail.com</title>
 				</Head>
 				<style>{`
           html, body {
