@@ -2,7 +2,7 @@
   "scripts": {
     "dev": "nodemon",
     "build": "next build && tsc && tsc --project tsconfig.server.json",
-    "start": "cross-env NODE_ENV=production node .next/server/server"
+    "start": "cross-env NODE_ENV=production node .next/server"
   },
   "dependencies": {
     "@svgr/webpack": "^4.2.0",
