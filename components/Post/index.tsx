@@ -122,17 +122,6 @@ class Home extends React.Component<IProps, IState> {
     })
   };
 
-  componentDidUpdate(prevProps): void {
-    // console.log('prevProps.posts:', JSON.stringify(prevProps.posts) );
-    // console.log('this.props.posts:', this.props.posts);
-
-    /*if (JSON.stringify(prevProps.posts) !== JSON.stringify(this.props.posts)) {
-      this.setState({
-        list: this.props.posts
-      })
-    }*/
-  }
-
   fetchMoreData = () => {
     this.setState((prevState) => {
       return {
