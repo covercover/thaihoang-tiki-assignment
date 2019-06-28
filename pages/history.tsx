@@ -1,13 +1,14 @@
 import React from 'react'
 import BasicLayout from '../layouts/BasicLayout';
 import History from '../components/History';
+import {IPost} from '../components/Post';
 
 interface IProps {
 
 }
 
 interface IState {
-  historyDataSource: object[]
+  historyDataSource: IPost[]
 }
 
 export default class Index extends React.PureComponent<IProps, IState> {

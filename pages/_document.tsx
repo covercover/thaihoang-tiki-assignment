@@ -4,7 +4,7 @@
 // Event handlers like onClick can't be added to this file
 
 // ./pages/_document.js
-import * as React from 'react'
+import React from 'react'
 import Document, {Head, Html, Main, NextScript} from 'next/document'
 import {ServerStyleSheet} from 'styled-components'
 
@@ -52,7 +52,7 @@ export default class MyDocument extends Document<any> {
 					<link rel="shortcut icon" type="image/x-icon" href="/static/assets/favicon.ico"/>
 					<meta name="viewport" content="width=device-width, initial-scale=1" />
 				</Head>
-				<style jsx global>{`
+				<style>{`
           html, body {
             font-family: 'Roboto', sans-serif;
           }
