@@ -25,7 +25,6 @@ export default function post(state = initialState, action) {
 				},
 			};
 		case actionTypes.FETCH_POST_LIST_SUCCESS:
-			console.log('action.payload:', action.payload);
 			const posts = action.payload.articles.map((item) => {
 				const newItem = {...item};
 				newItem.publishedAt = moment(newItem.publishedAt).utc().format('DD/MM/YYYY HH:mm:ss');
