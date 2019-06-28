@@ -8,6 +8,7 @@ import {actionTypes} from '../../utils/post/actions';
 import FilterDataSource from '../../components/Filter';
 import InfiniteScroll from "react-infinite-scroll-component";
 import PostTile from './PostTile';
+import moment from "moment";
 
 const StyledContentWrapper = styled(Layout)`
 	width: 1200px;
@@ -96,10 +97,14 @@ class Home extends React.Component<IProps, IState> {
       };
       this.getData(payload).then((res: IResponse) => {
         if (res) {
-          const data = res.articles;
+          const posts = res.articles.map((item) => {
+            const newItem = {...item};
+            newItem.publishedAt = moment(newItem.publishedAt).utc().format('DD/MM/YYYY HH:mm:ss');
+            return newItem
+          });
           this.setState(
             {
-              list: data
+              list: posts
             },
             () => {
               window.dispatchEvent(new Event('resize'));
@@ -135,7 +140,13 @@ class Home extends React.Component<IProps, IState> {
       };
       this.getData(payload).then((res: IResponse) => {
         if (res) {
-          const data = this.state.list.concat(res.articles);
+          const posts = res.articles.map((item) => {
+            const newItem = {...item};
+            newItem.publishedAt = moment(newItem.publishedAt).utc().format('DD/MM/YYYY HH:mm:ss');
+            return newItem
+          });
+
+          const data = this.state.list.concat(posts);
           this.setState(
             {
               list: data
