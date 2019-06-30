@@ -45,7 +45,7 @@ const StyledContentWrapper = styled(Layout)`
 `;
 
 interface IProps {
-  searchPostsStatus: object,
+  searchPostsStatus: any,
   posts: object[],
   pageSize: number,
   defaultDomain: string
