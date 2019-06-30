@@ -1,9 +1,19 @@
 import {actionTypes} from './actions';
-import moment from 'moment';
+import {formatTimePost} from '../formatTimePost';
 
 const initialState = {
 	posts: [],
 	fetchPostsStatus: {
+		loading: false,
+		success: false,
+		error: false
+	},
+	loadMorePostsStatus: {
+		loading: false,
+		success: false,
+		error: false
+	},
+	searchPostsStatus: {
 		loading: false,
 		success: false,
 		error: false
@@ -13,7 +23,7 @@ const initialState = {
 
 export default function post(state = initialState, action) {
 	switch (action.type) {
-		case actionTypes.FETCH_POST_LIST_REQUEST:
+		case actionTypes.FETCH_POST_LIST_REQUEST: {
 			return {
 				...state,
 				...{
@@ -24,12 +34,10 @@ export default function post(state = initialState, action) {
 					}
 				},
 			};
-		case actionTypes.FETCH_POST_LIST_SUCCESS:
-			const posts = action.payload.articles.map((item) => {
-				const newItem = {...item};
-				newItem.publishedAt = moment(newItem.publishedAt).utc().format('DD/MM/YYYY HH:mm:ss');
-				return newItem
-			});
+		}
+
+		case actionTypes.FETCH_POST_LIST_SUCCESS: {
+			const posts = formatTimePost(action.payload.articles);
 			return {
 				...state,
 				...{
@@ -41,7 +49,54 @@ export default function post(state = initialState, action) {
 					}
 				}
 			};
-		case actionTypes.FETCH_POST_LIST_FAILURE:
+		}
+
+		case actionTypes.LOAD_MORE_POST_LIST_SUCCESS: {
+			const prevPosts = [...state.posts];
+			const currentPosts = formatTimePost(action.payload.articles);
+			const posts = prevPosts.concat(currentPosts);
+			return {
+				...state,
+				...{
+					posts: posts,
+					loadMorePostsStatus: {
+						loading: false,
+						success: true,
+						error: false
+					}
+				}
+			};
+		}
+
+		case actionTypes.SEARCH_POST_REQUEST: {
+			return {
+				...state,
+				...{
+					searchPostsStatus: {
+						loading: true,
+						success: false,
+						error: false
+					}
+				},
+			};
+		}
+
+		case actionTypes.SEARCH_POST_SUCCESS: {
+			const posts = formatTimePost(action.payload.articles);
+			return {
+				...state,
+				...{
+					posts: posts,
+					searchPostsStatus: {
+						loading: false,
+						success: true,
+						error: false
+					}
+				}
+			};
+		}
+
+		case actionTypes.FETCH_POST_LIST_FAILURE: {
 			return {
 				...state,
 				...{
@@ -53,6 +108,8 @@ export default function post(state = initialState, action) {
 					}
 				},
 			};
+		}
+
 		default:
 			return state;
 	}
