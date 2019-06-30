@@ -4,6 +4,8 @@ import {
   APIFetchPostList,
   fetchPostListSuccess,
   fetchPostListFailure,
+  searchPostListSuccess,
+  loadMorePostListSuccess,
   APISearchPost
 } from './post/actions';
 
@@ -23,7 +25,16 @@ function * fetchPostWorker(action) {
 function * searchPostWorker(action) {
   try {
     const {data} = yield call(APISearchPost, action.payload);
-    yield put(fetchPostListSuccess(data));
+    yield put(searchPostListSuccess(data));
+  } catch (e) {
+    yield put(fetchPostListFailure(e));
+  }
+}
+
+function * loadMorePostWorker(action) {
+  try {
+    const {data} = yield call(APIFetchPostList, action.payload);
+    yield put(loadMorePostListSuccess(data));
   } catch (e) {
     yield put(fetchPostListFailure(e));
   }
@@ -33,6 +44,7 @@ function * rootSaga () {
   yield all([
     takeLatest(postActionTypes.FETCH_POST_LIST_REQUEST, fetchPostWorker),
     takeLatest(postActionTypes.SEARCH_POST_REQUEST, searchPostWorker),
+    takeLatest(postActionTypes.LOAD_MORE_POST_LIST_REQUEST, loadMorePostWorker)
   ])
 }
 

@@ -85,16 +85,15 @@ class Navbar extends React.PureComponent<IProps, IState> {
   }
 
   setDisplayedContacts = debounce(query => {
-    const payload = {
-      q: query,
-    };
-    this.props.dispatch({
-      type: actionTypes.SEARCH_POST_REQUEST,
-      payload: payload,
-    });
-    /*this.setState({
-      searchQuery: query
-    })*/
+    if (query) {
+      const payload = {
+        q: query,
+      };
+      this.props.dispatch({
+        type: actionTypes.SEARCH_POST_REQUEST,
+        payload: payload,
+      });
+    }
   }, 1000);
 
   handleChange = e => {

@@ -1,14 +1,14 @@
 import React from 'react';
 import {Dispatch} from 'redux';
 import { connect } from 'react-redux';
-import { Layout, Row, Col } from 'antd';
+import { Layout, Row, Col, Spin } from 'antd';
 import {withRouter} from 'next/router';
 import styled from 'styled-components';
 import {actionTypes} from '../../utils/post/actions';
 import FilterDataSource from '../../components/Filter';
 import InfiniteScroll from "react-infinite-scroll-component";
 import PostTile from './PostTile';
-import moment from "moment";
+import {formatTimePost} from '../../utils/formatTimePost';
 
 const StyledContentWrapper = styled(Layout)`
 	width: 1200px;
@@ -45,6 +45,8 @@ const StyledContentWrapper = styled(Layout)`
 `;
 
 interface IProps {
+  searchPostsStatus: object,
+  posts: object[],
   pageSize: number,
   defaultDomain: string
   dispatch: Dispatch
@@ -76,6 +78,12 @@ interface IResponse {
   articles: IPost[]
 }
 
+const LoadingWrapper = styled.div`
+  position: fixed;
+  top: 50%;
+  left: 50%;
+`;
+
 class Home extends React.Component<IProps, IState> {
   constructor(props) {
     super(props);
@@ -95,31 +103,14 @@ class Home extends React.Component<IProps, IState> {
         pageSize: this.props.pageSize,
         page: 1
       };
-      this.getData(payload).then((res: IResponse) => {
-        if (res) {
-          const posts = res.articles.map((item) => {
-            const newItem = {...item};
-            newItem.publishedAt = moment(newItem.publishedAt).utc().format('DD/MM/YYYY HH:mm:ss');
-            return newItem
-          });
-          this.setState(
-            {
-              list: posts
-            },
-            () => {
-              window.dispatchEvent(new Event('resize'));
-            },
-          );
-        }
-      })
+      await this.getData(actionTypes.FETCH_POST_LIST_REQUEST, payload);
     });
-
   };
 
-  getData = params => {
+  getData = (actionTypes, params) => {
     return new Promise((resolve, reject) => {
       this.props.dispatch({
-        type: actionTypes.FETCH_POST_LIST_REQUEST,
+        type: actionTypes,
         payload: params,
         resolve,
         reject
@@ -138,19 +129,15 @@ class Home extends React.Component<IProps, IState> {
         pageSize: this.props.pageSize,
         page: this.state.page
       };
-      this.getData(payload).then((res: IResponse) => {
+      this.getData(actionTypes.LOAD_MORE_POST_LIST_REQUEST, payload).then((res: IResponse) => {
         if (res) {
-          const posts = res.articles.map((item) => {
-            const newItem = {...item};
-            newItem.publishedAt = moment(newItem.publishedAt).utc().format('DD/MM/YYYY HH:mm:ss');
-            return newItem
+          const posts = formatTimePost(res.articles);
+          this.props.dispatch({
+            type: actionTypes.LOAD_MORE_POST_LIST_REQUEST,
+            payload: posts,
           });
-
-          const data = this.state.list.concat(posts);
           this.setState(
-            {
-              list: data
-            },
+            {},
             () => {
               // Resetting window's offsetTop so as to display react-virtualized demo underfloor.
               // In real scene, you can using public method of react-virtualized:
@@ -164,8 +151,7 @@ class Home extends React.Component<IProps, IState> {
   };
 
   render() {
-    const {defaultDomain} = this.props;
-    const {list} = this.state;
+    const {defaultDomain, posts, searchPostsStatus} = this.props;
     return (
       <Row gutter={24}>
         <Col span={24}>
@@ -175,16 +161,20 @@ class Home extends React.Component<IProps, IState> {
                 defaultDomain={defaultDomain}
                 handleChangeDomain={this.handleChangeDomain}
               />
-              <InfiniteScroll
-                dataLength={list.length}
-                next={this.fetchMoreData}
-                hasMore={true}
-                loader={<h4>Loading...</h4>}
-              >
-                {list.map((item: any, index) => (
-                  <PostTile key={index} {...item}/>
-                ))}
-              </InfiniteScroll>
+              {searchPostsStatus.loading ? (
+                <LoadingWrapper><Spin size="large" tip="Searching..."/></LoadingWrapper>
+              ) : (
+                <InfiniteScroll
+                  dataLength={posts.length}
+                  next={this.fetchMoreData}
+                  hasMore={true}
+                  loader={<LoadingWrapper><Spin size="large" tip="Loading..."/></LoadingWrapper>}
+                >
+                  {posts.map((item: any, index) => (
+                    <PostTile key={index} {...item}/>
+                  ))}
+                </InfiniteScroll>
+              )}
             </StyledContentWrapper>
           </Layout>
         </Col>
@@ -196,7 +186,8 @@ class Home extends React.Component<IProps, IState> {
 const mapStateToProps = ({postsReducer}) => {
   return {
     posts: postsReducer.posts,
-    fetchPostsStatus: postsReducer.fetchPostsStatus
+    fetchPostsStatus: postsReducer.fetchPostsStatus,
+    searchPostsStatus: postsReducer.searchPostsStatus
   }
 };
 
