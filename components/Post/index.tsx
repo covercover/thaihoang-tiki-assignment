@@ -7,7 +7,7 @@ import styled from 'styled-components';
 import {actionTypes} from '../../utils/post/actions';
 import FilterDataSource from '../../components/Filter';
 import InfiniteScroll from "react-infinite-scroll-component";
-import PostTile from './PostTile';
+import PostTile, {IPost} from './PostTile';
 import {formatTimePost} from '../../utils/formatTimePost';
 
 const StyledContentWrapper = styled(Layout)`
@@ -46,7 +46,7 @@ const StyledContentWrapper = styled(Layout)`
 
 interface IProps {
   searchPostsStatus: any,
-  posts: object[],
+  posts: IPost[],
   pageSize: number,
   defaultDomain: string
   dispatch: Dispatch
@@ -153,7 +153,7 @@ class Home extends React.Component<IProps, IState> {
   render() {
     const {defaultDomain, posts, searchPostsStatus} = this.props;
     return (
-      <Row gutter={24}>
+      <Row>
         <Col span={24}>
           <Layout style={{background: 'white'}}>
             <StyledContentWrapper>
@@ -170,8 +170,8 @@ class Home extends React.Component<IProps, IState> {
                   hasMore={true}
                   loader={<LoadingWrapper><Spin size="large" tip="Loading..."/></LoadingWrapper>}
                 >
-                  {posts.map((item: any, index) => (
-                    <PostTile key={index} {...item}/>
+                  {posts.map((item, index) => (
+                    <PostTile key={index} post={item}/>
                   ))}
                 </InfiniteScroll>
               )}

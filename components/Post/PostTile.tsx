@@ -14,80 +14,67 @@ const TitleWrapper = styled.div`
   cursor: pointer;
 `;
 
-const PostContent = styled.div`
+const Wrapper = styled.div`
   display: flex;
+  flex-direction: column;
+`;
+
+const Body = styled.div`
+  display: flex;
+  margin-bottom: 20px;
   justify-content: space-between;
-  > div:first-child {
-    margin-right: 50px;
-  }
   
   /* Extra small devices (phones, 600px and down) */
   @media only screen and (max-width: 600px) {
-    flex-direction: column;
-    justify-content: normal;
-    > div:first-child {
-      margin-right: 0;
-    }
-  } 
-  
-  /* Small devices (portrait tablets and large phones, 600px and up) */
-  @media only screen and (min-width: 600px) {
-    
-  } 
-  
-  /* Medium devices (landscape tablets, 768px and up) */
-  @media only screen and (min-width: 768px) {
-    flex-direction: column;
-    justify-content: normal;
-    > div:first-child {
-      margin-right: 0;
-    }
-  } 
-  
-  /* Large devices (laptops/desktops, 992px and up) */
-  @media only screen and (min-width: 992px) {
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
+    margin-bottom: 20px;
     justify-content: space-between;
-    > div:first-child {
-      margin-right: 50px;
-    }
-  } 
-`;
-
-const WrapperImg = styled.div`
-  @media only screen and (max-width: 600px) {
-    img {
-      max-width: 100%;
-      margin-top: 10px;
-    }
   }
-  
-  /* Medium devices (landscape tablets, 768px and up) */
-  @media only screen and (min-width: 768px) {
-    img {
-      max-width: 100%;
-      margin-top: 10px;
-    }
-  } 
-  
-  /* Large devices (laptops/desktops, 992px and up) */
-  @media only screen and (min-width: 992px) {
-    img {
-      max-width: 300px;
-    }
-  } 
 `;
 
-const HeroImage = styled.img`
-  max-width: 300px;
+const BodyLeft = styled.div`
+  padding-right: 40px;
+  
+  /* Extra small devices (phones, 600px and down) */
+  @media only screen and (max-width: 600px) {
+    padding-right: 0;
+  }
 `;
+
+const BodyRight = styled.div``;
 
 const Footer = styled.div`
-  display: flex;
-  font-size: 12px;
-  > span:first-child {
-    margin-right: 40px;
+  @media only screen and (max-width: 600px) {
+    display: flex;
+    justify-content: space-between;
+  }
+`;
+
+const Source = styled.span`
+  margin-right: 40px;
+  @media only screen and (max-width: 600px) {
+    margin-right: 0;
+  }
+`;
+
+const PublishAt = styled.span``;
+
+const HeroImage = styled.img`
+  width: 300px;
+  
+  /* Extra small devices (phones, 600px and down) */
+  @media only screen and (max-width: 600px) {
+    width: 100%;
+  }
+`;
+
+const Description = styled.div`
+  margin-bottom: 30px;
+  
+  /* Extra small devices (phones, 600px and down) */
+  @media only screen and (max-width: 600px) {
+    margin-bottom: 20px;
   }
 `;
 
@@ -123,37 +110,63 @@ const preSetLocalStorage = postDetails => {
   }
 };
 
-const handleRedirect = ({disabledForStorage, ...postDetails}) => {
+const handleRedirect = ({disabledForStorage = false, post}) => {
   // Pre set local storage
   if (!disabledForStorage) {
-    preSetLocalStorage(postDetails);
+    preSetLocalStorage(post);
   }
 
   // Redirect
-  window.open(postDetails.url, '_blank');
+  window.open(post.url, '_blank');
 };
 
-const PostTile: React.FC = (props: any) => {
+interface IProps {
+  disabledForStorage?: boolean,
+  post: IPost
+}
+
+export interface IPost {
+  title: string,
+  description: string,
+  publishedAt: string,
+  urlToImage: string
+  source: ISource,
+}
+
+interface ISource {
+  id: string,
+  name: string
+}
+
+const PostTile: React.FC<IProps> = (props) => {
+  const {post} = props;
   return (
     <StyledCard>
-      <PostContent>
-        <div>
-          <TitleWrapper onClick={() => handleRedirect(props)}>
-            <Title level={3} >
-              {props.title}
-            </Title>
-          </TitleWrapper>
-          <div style={{marginBottom: '30px'}}>{props.description}</div>
-          <Footer>
-            <span>
-              {props.source.name}</span>
-            <span><Icon type="clock-circle" /> {props.publishedAt}</span>
-          </Footer>
-        </div>
-        <WrapperImg>
-          <HeroImage src={props.urlToImage}/>
-        </WrapperImg>
-      </PostContent>
+      <Wrapper>
+        <Body>
+          <BodyLeft>
+            <TitleWrapper onClick={() => handleRedirect(props)}>
+              <Title level={3}>
+                {post.title}
+              </Title>
+            </TitleWrapper>
+            <Description>
+              {post.description}
+            </Description>
+          </BodyLeft>
+          <BodyRight>
+            <HeroImage src={post.urlToImage}/>
+          </BodyRight>
+        </Body>
+        <Footer>
+          <Source>
+            {post.source.name}
+          </Source>
+          <PublishAt>
+            <Icon type="clock-circle" /> {post.publishedAt}
+          </PublishAt>
+        </Footer>
+      </Wrapper>
     </StyledCard>
   )
 };
