@@ -1,6 +1,6 @@
 import React from 'react';
 import PostTile from '../Post/PostTile';
-import { Layout, Card } from 'antd';
+import {Layout, Card, Col, Row} from 'antd';
 import styled from "styled-components";
 import {IPost} from '../Post';
 
@@ -43,19 +43,23 @@ interface IHistoryProps {
 
 const History: React.FC<IHistoryProps> = ({historyDataSource}) => {
   return (
-    <Layout style={{background: 'white'}}>
-      <StyledContentWrapper>
-        {historyDataSource.length > 0
-          ? historyDataSource.map((item: any) => (
-            <PostTile disabledForStorage={true} key={item.url} {...item}/>
-          ))
-          : (
-            <Card>
-              No have data
-            </Card>
-          )}
-      </StyledContentWrapper>
-    </Layout>
+    <Row>
+      <Col span={24}>
+        <Layout style={{background: 'white'}}>
+          <StyledContentWrapper>
+            {historyDataSource.length > 0
+              ? historyDataSource.map((item: any, index) => (
+                <PostTile disabledForStorage={true} key={index} post={item}/>
+              ))
+              : (
+                <Card>
+                  No have data
+                </Card>
+              )}
+          </StyledContentWrapper>
+        </Layout>
+      </Col>
+    </Row>
   );
 };
 
