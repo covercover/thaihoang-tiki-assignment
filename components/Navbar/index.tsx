@@ -1,7 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
 import styled from "styled-components";
-import {Layout, Input, Menu} from "antd";
+import {Layout, Input, Menu, Dropdown, Icon} from "antd";
 import { connect } from 'react-redux';
 import { Dispatch } from 'redux';
 import {withRouter} from 'next/router';
@@ -19,6 +19,14 @@ const StyledHeaderWrapper = styled(Header)`
   background: #fff;
   box-shadow: 0 1px 4px rgba(0, 21, 41, 0.08);
   z-index: 10;
+  transition: all .3s;
+  
+  &.isSticky {
+    position: fixed;
+    top: 0;
+    width: 100%;
+  }
+  
   @media only screen and (max-width: 600px) {
     padding: 0 20px;
   } 
@@ -72,7 +80,9 @@ interface IProps {
 
 interface IState {
   current: string,
-  searchQuery: string
+  searchQuery: string,
+  isMobile: boolean,
+  isSticky: boolean
 }
 
 class Navbar extends React.PureComponent<IProps, IState> {
@@ -80,7 +90,40 @@ class Navbar extends React.PureComponent<IProps, IState> {
     super(props);
     this.state = {
       current: props.router.pathname.substring(1) || 'news',
-      searchQuery: ''
+      searchQuery: '',
+      isMobile: false,
+      isSticky: false
+    }
+  }
+
+  componentDidMount(): void {
+    window.addEventListener("resize", this.resize.bind(this));
+    window.addEventListener('scroll', this.handleScroll);
+    this.resize();
+  }
+
+  componentWillUnmount(): void {
+    window.removeEventListener('scroll', this.handleScroll);
+    window.removeEventListener('resize', this.resize.bind(this));
+  }
+
+  handleScroll = () => {
+    const currentScrollY = window.scrollY;
+    if (currentScrollY > 90) {
+      this.setState({
+        isSticky: true
+      })
+    } else {
+      this.setState({
+        isSticky: false
+      })
+    }
+  };
+
+  resize() {
+    const currentIsMobile = window.innerWidth <= 760;
+    if (currentIsMobile !== this.state.isMobile) {
+      this.setState({isMobile: currentIsMobile});
     }
   }
 
@@ -101,29 +144,51 @@ class Navbar extends React.PureComponent<IProps, IState> {
     this.setDisplayedContacts(input);
   };
 
-  render() {
+  menus = () => {
     const { current } = this.state;
     return (
-      <StyledHeaderWrapper>
+      <StyledMenu
+        selectedKeys={[current]}
+        mode="horizontal"
+        theme="light"
+      >
+        <Item key='news'>
+          <Link href='/'>
+            <a>News</a>
+          </Link>
+        </Item>
+        <Item key='history'>
+          <Link href='/history'>
+            <a>History</a>
+          </Link>
+        </Item>
+      </StyledMenu>
+    )
+  };
+
+  responsiveMenu = () => {
+    const { isMobile } = this.state;
+
+    if (isMobile) {
+      return (
+        <Dropdown trigger={['click']} overlay={() => {
+          return this.menus();
+        }}>
+          <Icon type="ellipsis" style={{ fontSize: '24px', lineHeight: '64px' }}/>
+        </Dropdown>
+      )
+    }
+    return this.menus();
+  };
+
+  render() {
+    const {isSticky} = this.state;
+    return (
+      <StyledHeaderWrapper className={isSticky && 'isSticky'}>
         <Inner>
           <Group>
             <Logo/>
-            <StyledMenu
-              selectedKeys={[current]}
-              mode="horizontal"
-              theme="light"
-            >
-              <Item key='news'>
-                <Link href='/'>
-                  <a>News</a>
-                </Link>
-              </Item>
-              <Item key='history'>
-                <Link href='/history'>
-                  <a>History</a>
-                </Link>
-              </Item>
-            </StyledMenu>
+            {this.responsiveMenu()}
           </Group>
           <div>
             <Search
@@ -138,9 +203,5 @@ class Navbar extends React.PureComponent<IProps, IState> {
     )
   }
 }
-
-/*const mapDispatchToProps = state => {
-  return state;
-}*/
 
 export default connect()(withRouter(Navbar));
